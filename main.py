@@ -28,14 +28,14 @@ def start_git_copy(src, dst, fill, username, start_date):
             temp = list(())
             while i < len(empty_contribution_dates):
                 temp.append(empty_contribution_dates[i])
-                i += random.randint(1, 4)
+                i += random.randint(1, 10)
             empty_contribution_dates.clear()
             empty_contribution_dates.extend(temp)
     gitUtils.git_checkout_to_commit(src, 'master')
     log_data = gitUtils.git_logs(src)
     fileUtils.reset_directory(dst)
     gitUtils.git_init(dst)
-    daily_log_cnt = 10
+    daily_log_cnt = 15
     last_log_date = None
     log_counter = 0
     total_log_count = 0 if empty_contribution_dates is None else len(empty_contribution_dates)
@@ -53,7 +53,7 @@ def start_git_copy(src, dst, fill, username, start_date):
             if last_log_date is None or daily_log_cnt <= 0:
                 last_log_date = empty_contribution_dates[log_counter]
                 log_counter += 1
-                daily_log_cnt = random.randint(1, 10)
+                daily_log_cnt = random.randint(1, 15)
             last_log_date = add_rand_time(last_log_date)
             s_log_date = last_log_date.strftime('%c')
             gitUtils.git_commit(dst, log['email'], log['message'], s_log_date)
