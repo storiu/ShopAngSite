@@ -20,14 +20,20 @@ def get_year_contributions(username, year):
     return result
 
 
-def get_empty_contribution_dates(username):
+def get_empty_contribution_dates(username, start_date):
     years = get_years(username)
+    start_year = int(re.match(r'(\d+)-\d+-\d+', start_date)[1])
+    first_available_year = int(years[-1])
+    if start_year < first_available_year:
+        years = [*years, *[str(y) for y in range(start_year, first_available_year)]]
+
     years.reverse()
     contributions = []
     today = datetime.now()
     for year in years:
         year_contributions = get_year_contributions(username, year)
-        empty_contributions = filter(lambda x: x['count'] == 0 and x['date'].weekday() != 5 and x['date'].weekday() != 6 and x['date'] < today and not (x['date'].month == 1 and x['date'].day <= 10), year_contributions)
+        empty_contributions = filter(lambda x: x['count'] == 0 and x['date'].weekday() != 6 and x['date'] < today and not (x['date'].month == 1 and x['date'].day <= 10), year_contributions)
         empty_contribution_dates = map(lambda x: x['date'], empty_contributions)
         contributions.extend(empty_contribution_dates)
+    
     return contributions

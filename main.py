@@ -20,15 +20,22 @@ def add_rand_time(d):
 def start_git_copy(src, dst, fill, username, start_date):
     empty_contribution_dates = None
     if fill is not None and username is not None:
-        empty_contribution_dates = contributions.get_empty_contribution_dates(username)
+        empty_contribution_dates = contributions.get_empty_contribution_dates(username, start_date)
         if start_date is not None:
             start_date = datetime.strptime(start_date, '%Y-%m-%d')
             empty_contribution_dates = list(filter(lambda x: x > start_date, empty_contribution_dates))
+            i = 0
+            temp = list(())
+            while i < len(empty_contribution_dates):
+                temp.append(empty_contribution_dates[i])
+                i += random.randint(1, 4)
+            empty_contribution_dates.clear()
+            empty_contribution_dates.extend(temp)
     gitUtils.git_checkout_to_commit(src, 'master')
     log_data = gitUtils.git_logs(src)
     fileUtils.reset_directory(dst)
     gitUtils.git_init(dst)
-    daily_log_cnt = 3
+    daily_log_cnt = 10
     last_log_date = None
     log_counter = 0
     total_log_count = 0 if empty_contribution_dates is None else len(empty_contribution_dates)
@@ -46,7 +53,7 @@ def start_git_copy(src, dst, fill, username, start_date):
             if last_log_date is None or daily_log_cnt <= 0:
                 last_log_date = empty_contribution_dates[log_counter]
                 log_counter += 1
-                daily_log_cnt = random.randint(1, 3)
+                daily_log_cnt = random.randint(1, 10)
             last_log_date = add_rand_time(last_log_date)
             s_log_date = last_log_date.strftime('%c')
             gitUtils.git_commit(dst, log['email'], log['message'], s_log_date)
