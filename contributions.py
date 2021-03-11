@@ -10,10 +10,10 @@ def get_years(username):
 
 def get_year_contributions(username, year):
     contributions_raw_html = str(request.urlopen(f'https://github.com/users/{username}/contributions?from={year}-12-01&to={year}-12-31').read(), 'utf8')
-    daily_contributions_raw = re.findall(r'<rect class="day".+data-count="\d+" data-date=".+"/>', contributions_raw_html)
+    daily_contributions_raw = re.findall(r'<rect.+data-count="\d+" data-date=".+" data-level=.*></rect>', contributions_raw_html)
     result = []
     for daily_contribution_raw in daily_contributions_raw:
-        match = re.match(r'<rect class="day".*data-count="(\d+)" data-date="(.+)"/>', daily_contribution_raw)
+        match = re.match(r'<rect.+data-count="(\d+)" data-date="(.+)" data-level=.*></rect>', daily_contribution_raw)
         count = int(match[1])
         date = datetime.strptime(match[2], '%Y-%m-%d')
         result.append({'date': date, 'count': count})
@@ -25,9 +25,7 @@ def get_empty_contribution_dates(username, start_date):
     start_year = int(re.match(r'(\d+)-\d+-\d+', start_date)[1])
     first_available_year = int(years[-1])
     if start_year < first_available_year:
-        years = [*years, *[str(y) for y in range(start_year, first_available_year)]]
-
-    years.reverse()
+        years = [*[str(y) for y in range(start_year, first_available_year)], *years]
     contributions = []
     today = datetime.now()
     for year in years:
